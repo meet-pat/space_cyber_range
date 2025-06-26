@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🚀 Space Cyber Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="dashboard">
+    <h1>🚀 Telemetry Command Center</h1>
+    <div class="log-container" id="logContainer">
+      <p>Fetching telemetry logs...</p>
+    </div>
+  </div>
+
+  <script>
+    async function fetchLogs() {
+      const res = await fetch('/api/telemetry');
+      const data = await res.json();
+      const logs = data.telemetry || [];
+      const logContainer = document.getElementById("logContainer");
+      logContainer.innerHTML = "";
+
+      if (logs.length === 0) {
+        logContainer.innerHTML = "<p>No telemetry logs yet.</p>";
+        return;
+      }
+
+      logs.slice().reverse().forEach(entry => {
+        const p = document.createElement("p");
+        if (entry.includes("✅")) p.className = "executed";
+        else if (entry.includes("❌")) p.className = "blocked";
+        else if (entry.includes("🚨")) p.className = "malicious";
+        else if (entry.includes("🔐")) p.className = "decryptfail";
+        else p.className = "neutral";
+        p.textContent = entry;
+        logContainer.appendChild(p);
+      });
+    }
+
+    setInterval(fetchLogs, 2000);
+    fetchLogs();
+  </script>
+</body>
+</html>
